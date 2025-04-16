@@ -1,0 +1,188 @@
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas></canvas>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.height = 768;
+        canvas.width = 1024;
+
+        let speedEnemy = 0.2;
+        class Enemy {
+            constructor(x, y) {
+                this.width = 50;
+                this.height = 50;
+                this.x = x - this.width / 2;
+                this.y = y - this.height / 2;
+                // this.speed = 2;
+            }
+
+            draw() {
+                ctx.fillStyle = 'green';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                const xDistancia = player.x - this.x;
+                const yDistancia = player.y - this.y;
+                const angulo = Math.atan2(yDistancia, xDistancia);
+
+                this.x += Math.cos(angulo) * speedEnemy;
+                this.y += Math.sin(angulo) * speedEnemy;
+
+                this.draw();
+            }
+        }
+
+        class Orb {
+            constructor() {
+
+            }
+        }
+
+        class Player {
+            constructor() {
+                this.width = 50;
+                this.height = 50;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height / 2 - this.height / 2;
+                this.speed = 3;
+                this.arc = 50
+                this.orbs = 3;
+
+                this.angle = 0;
+            }
+
+            draw() {
+                ctx.fillStyle = 'red';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                ctx.strokeStyle = 'green';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.arc, 0, Math.PI * 2)
+                ctx.stroke();
+
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 5, 0, Math.PI * 2)
+                ctx.fill();
+
+                ctx.beginPath();
+
+                // const xDistancia = player.x - this.x;
+                // const yDistancia = player.y - this.y;
+                // const angulo = Math.atan2(yDistancia, xDistancia);
+
+                // const a = 80;
+                const xO = this.x + Math.cos(this.angle) * this.arc;
+                const yO = this.y + Math.sin(this.angle) * this.arc;
+
+                ctx.arc(xO + this.width / 2, yO + this.height / 2, 5, 0, Math.PI * 2)
+                ctx.fill();
+            }
+
+            update() {
+                if (movimentos.cima)
+                    this.y -= this.speed
+                if (movimentos.baixo)
+                    this.y += this.speed
+                if (movimentos.direita)
+                    this.x += this.speed
+                if (movimentos.esquerda)
+                    this.x -= this.speed
+
+                this.angle += 0.1
+
+                this.draw();
+            }
+        }
+
+        const movimentos = {
+            cima: false,
+            baixo: false,
+            esquerda: false,
+            direita: false
+        }
+        const player = new Player();
+        const enimies = []
+        function spawnEnemies() {
+            // enemiesCount += 2;
+            // for (let i = 1; i <= enemiesCount; i++) {
+            for (let i = 1; i <= 5; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                enimies.push(new Enemy(x, y))
+            }
+        }
+        spawnEnemies()
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            player.update();
+            enimies.forEach(item => item.update())
+        }
+
+        addEventListener('keydown', (e) => {
+            speedEnemy = 2;
+            switch (e.key) {
+                case 'w':
+                case 'ArrowUp':
+                    movimentos.cima = true;
+                    break;
+                case 'a':
+                case 'ArrowLeft':
+                    movimentos.esquerda = true;
+                    break;
+                case 's':
+                case 'ArrowDown':
+                    movimentos.baixo = true;
+                    break;
+                case 'd':
+                case 'ArrowRight':
+                    movimentos.direita = true;
+                    break;
+            }
+        })
+
+        addEventListener('keyup', (e) => {
+            switch (e.key) {
+                case 'w':
+                case 'ArrowUp':
+                    movimentos.cima = false;
+                    break;
+                case 'a':
+                case 'ArrowLeft':
+                    movimentos.esquerda = false;
+                    break;
+                case 's':
+                case 'ArrowDown':
+                    movimentos.baixo = false;
+                    break;
+                case 'd':
+                case 'ArrowRight':
+                    movimentos.direita = false;
+                    break;
+            }
+        })
+
+
+
+        animate();
+    </script>
+</body>
+
+</html>
