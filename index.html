@@ -45,8 +45,32 @@
         }
 
         class Orb {
-            constructor() {
+            constructor(color) {
+                this.color = color;
+                this.size = 5;
+            }
 
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+                ctx.fill();
+            }
+
+            update(player) {
+                const angle = this.angle * Math.PI / 180 //convertando para RADIANOS
+                const x = player.x + player.width / 2
+                const y = player.y + player.height / 2
+                // const xO = this.x + Math.cos(_angleRad) * this.arc;
+                // const yO = this.y + Math.sin(_angleRad) * this.arc;
+                this.x = x + Math.cos(angle) * player.arc;
+                this.y = y + Math.sin(angle) * player.arc;
+                this.angle += 3
+                this.draw();
+            }
+
+            setAngle(angle) {
+                this.angle = angle;
             }
         }
 
@@ -58,9 +82,7 @@
                 this.y = canvas.height / 2 - this.height / 2;
                 this.speed = 3;
                 this.arc = 50
-                this.orbs = 3;
-
-                this.angle = 0;
+                this.orbs = [];
             }
 
             draw() {
@@ -77,32 +99,8 @@
                 ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 5, 0, Math.PI * 2)
                 ctx.fill();
 
-                this.drawOrb(this.angle, 'red');
-                this.drawOrb(this.angle + 45, 'blue');
-                this.drawOrb(this.angle + 90, 'green');
-                this.drawOrb(this.angle + 135, 'purple');
-                this.drawOrb(this.angle + 180, 'pink');
-                this.drawOrb(this.angle + 225, 'orange');
-                this.drawOrb(this.angle + 270, 'white');
-                this.drawOrb(this.angle + 315, 'yellow');
-                // this.drawOrb(this.angle + 360, 'yellow');
+                this.orbs.forEach(orb => orb.update(this));
             }
-
-            drawOrb(angle, cor) {
-                const _angleRad = angle * Math.PI / 180 //convertando para RADIANOS
-                ctx.fillStyle = cor;
-                // ctx.fillStyle = 'yellow';
-                ctx.beginPath();
-                const x = this.x + this.width / 2
-                const y = this.y + this.height / 2
-                const xO = x + Math.cos(_angleRad) * this.arc;
-                const yO = y + Math.sin(_angleRad) * this.arc;
-                // const xO = this.x + Math.cos(_angleRad) * this.arc;
-                // const yO = this.y + Math.sin(_angleRad) * this.arc;
-                ctx.arc(xO, yO, 5, 0, Math.PI * 2)
-                ctx.fill();
-            }
-
 
             update() {
                 if (movimentos.cima)
@@ -113,10 +111,13 @@
                     this.x += this.speed
                 if (movimentos.esquerda)
                     this.x -= this.speed
-
-                this.angle += 3
-
                 this.draw();
+            }
+
+            addOrb() {
+                this.orbs.push(new Orb('yellow'))
+                const angle = 360 / this.orbs.length;
+                this.orbs.forEach((orb, index) => orb.setAngle(angle * index));
             }
         }
 
@@ -193,6 +194,14 @@
         })
 
 
+        addEventListener("touchstart", () => { });
+        addEventListener("touchend", () => { player.addOrb() });
+        addEventListener("touchcancel", () => { });
+        addEventListener("touchmove", () => { });
+
+        addEventListener("mousedown", () => { });
+        addEventListener("mouseup", () => { player.addOrb() });
+        addEventListener("mousemove", () => { });
 
         animate();
     </script>
