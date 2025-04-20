@@ -19,7 +19,8 @@
 
         let speedEnemy = 0.2;
         class Enemy {
-            constructor(x, y) {
+            constructor(id, x, y) {
+                this.id = id;
                 this.radius = 25;
                 // this.height = 50;
                 // this.x = x - this.width / 2;
@@ -27,38 +28,95 @@
                 this.x = x - this.radius / 2;
                 this.y = y - this.radius / 2;
                 // this.speed = 2;
+                this.life = 100;
             }
 
             draw() {
-                ctx.fillStyle = 'green';
+                ctx.fillStyle = '#2e5937';
+                ctx.strokeStyle = '#3a8c4b';
                 ctx.beginPath();
-                ctx.arc(this.x,this.y, this.radius, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.arc(this.x, this.y, this.radius - 1, 0, Math.PI * 2);
+                ctx.stroke();
                 // ctx.fillRect(this.x, this.y, this.width, this.height);
             }
 
             update() {
                 const xDistancia = player.x - this.x;
                 const yDistancia = player.y - this.y;
-                const angulo = Math.atan2(yDistancia, xDistancia);
+                let angulo = Math.atan2(yDistancia, xDistancia);
 
-                this.x += Math.cos(angulo) * speedEnemy;
-                this.y += Math.sin(angulo) * speedEnemy;
+                // this.x += Math.cos(angulo) * speedEnemy;
+                // this.y += Math.sin(angulo) * speedEnemy;
+
+                // let col = 0;
+                // for (let i = 0; i < enimies.length; i++) {
+                //     const enemy = enimies[i];
+                //     if (this.id != enemy.id) {
+                //         const distX = enemy.x - this.x;
+                //         const distY = enemy.y - this.y;
+                //         const distance = Math.sqrt((distX * distX) + (distY * distY));
+
+                //         if (distance <= enemy.radius + this.radius) {
+                //             col = (enemy.radius + this.radius) - distance;
+                //             // angulo += 180;
+                //         }
+
+                //         // if (Math.abs(enemy.x - this.x) < this.radius)
+                //         //     vX = 0;
+                //         // if (Math.abs(enemy.y - this.y) < this.radius)
+                //         //     vY = 0;
+                //     }
+                // }
+
+                let vX = Math.cos(angulo) * speedEnemy;
+                let vY = Math.sin(angulo) * speedEnemy;
+
+                // if (col != 0) {
+                //     vX += col
+                //     vY += col
+                // }
+
+                this.x += vX;
+                this.y += vY;
+
+                this.orbCollision();
+
+                if (this.life <= 0)
+                    this.die()
 
                 this.draw();
+            }
+
+            orbCollision() {
+                player.orbs.forEach(orb => {
+                    const distX = orb.x - this.x;
+                    const distY = orb.y - this.y;
+                    const distance = Math.sqrt((distX * distX) + (distY * distY));
+                    if (distance <= orb.radius + this.radius)
+                        this.life -= orb.power;
+                })
+            }
+
+            die() {
+                const myIndex = enimies.findIndex(x => x.id === this.id);
+                // const myIndex = enimies.findIndex(x => x === this);
+                enimies.splice(myIndex, 1)
             }
         }
 
         class Orb {
             constructor(color) {
                 this.color = color;
-                this.size = 5;
+                this.radius = 5;
+                this.power = 10;
             }
 
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
                 ctx.fill();
             }
 
@@ -71,11 +129,27 @@
                 this.x = player.x + Math.cos(angle) * player.arc;
                 this.y = player.y + Math.sin(angle) * player.arc;
                 this.angle += 3
+
+                // this.enemyCollision();
+
                 this.draw();
             }
 
             setAngle(angle) {
                 this.angle = angle;
+            }
+
+            enemyCollision() {
+                enimies.forEach((enemy, index) => {
+                    const distX = enemy.x - this.x;
+                    const distY = enemy.y - this.y;
+                    const distance = Math.sqrt((distX * distX) + (distY * distY));
+                    if (distance <= enemy.radius + this.radius) {
+                        enemy.life -= this.power;
+                        if (enemy.life <= 0)
+                            enimies.splice(index, 1)
+                    }
+                })
             }
         }
 
@@ -94,10 +168,15 @@
             }
 
             draw() {
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = '#d13726';
+                ctx.strokeStyle = 'yellow'
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fill()
+                ctx.fill();
+                ctx.arc(this.x, this.y, this.radius - 1, 0, Math.PI * 2);
+                ctx.stroke();
+
+
                 // ctx.fillRect(this.x, this.y, this.width, this.height);
 
                 ctx.strokeStyle = 'green';
@@ -148,7 +227,7 @@
             for (let i = 1; i <= 5; i++) {
                 const x = Math.random() * canvas.width;
                 const y = Math.random() * canvas.height;
-                enimies.push(new Enemy(x, y))
+                enimies.push(new Enemy(i, x, y))
             }
         }
         spawnEnemies()
@@ -158,6 +237,8 @@
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // ctx.strokeStyle = 'black';
+            // ctx.strokeRect(0, 0, canvas.width, canvas.height)
 
             player.update();
             enimies.forEach(item => item.update())
