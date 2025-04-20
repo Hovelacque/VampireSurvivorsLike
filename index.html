@@ -29,6 +29,7 @@
                 this.y = y - this.radius / 2;
                 // this.speed = 2;
                 this.life = 100;
+                this.power = 10;
             }
 
             draw() {
@@ -153,6 +154,48 @@
             }
         }
 
+        class LifeBar {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 150;
+                this.height = 20;
+                this.radius = 10;
+                this.border = 2;
+            }
+
+            draw() {
+                //borda
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.roundRect(this.x, this.y, this.width, this.height, this.radius);
+                ctx.fill();
+                //fundo
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.roundRect(
+                    this.x + this.border,
+                    this.y + this.border,
+                    this.width - this.border * 2,
+                    this.height - this.border * 2,
+                    this.radius
+                );
+                ctx.fill();
+                //status
+                const width = (player.life * 150) / 100
+                ctx.fillStyle = '#8dd126';
+                ctx.beginPath();
+                ctx.roundRect(
+                    this.x + this.border,
+                    this.y + this.border,
+                    width - this.border * 2,
+                    this.height - this.border * 2,
+                    this.radius
+                );
+                ctx.fill();
+            }
+        }
+
         class Player {
             constructor() {
                 // this.width = 50;
@@ -164,7 +207,9 @@
                 this.y = canvas.height / 2 - this.radius / 2;
                 this.speed = 3;
                 this.arc = 50
+                this.life = 100;
                 this.orbs = [];
+                this.frame = 0;
             }
 
             draw() {
@@ -203,7 +248,23 @@
                     this.x += this.speed
                 if (movimentos.esquerda)
                     this.x -= this.speed
+
+                if (this.frame % 10 == 0)
+                    this.enemyCollision();
+                this.frame++;
+
                 this.draw();
+            }
+
+            enemyCollision() {
+                enimies.forEach((enemy, index) => {
+                    const distX = enemy.x - this.x;
+                    const distY = enemy.y - this.y;
+                    const distance = Math.sqrt((distX * distX) + (distY * distY));
+                    if (distance <= enemy.radius + this.arc) {
+                        this.life -= enemy.power;
+                    }
+                })
             }
 
             addOrb() {
@@ -220,6 +281,7 @@
             direita: false
         }
         const player = new Player();
+        const lifeBar = new LifeBar(10, 10);
         const enimies = []
         function spawnEnemies() {
             // enemiesCount += 2;
@@ -241,6 +303,7 @@
             // ctx.strokeRect(0, 0, canvas.width, canvas.height)
 
             player.update();
+            lifeBar.draw();
             enimies.forEach(item => item.update())
         }
 
