@@ -81,29 +81,29 @@
                 this.x += vX;
                 this.y += vY;
 
-                this.orbCollision();
+                // this.orbCollision();
 
-                if (this.life <= 0)
-                    this.die()
+                // if (this.life <= 0)
+                //     this.die()
 
                 this.draw();
             }
 
-            orbCollision() {
-                player.orbs.forEach(orb => {
-                    const distX = orb.x - this.x;
-                    const distY = orb.y - this.y;
-                    const distance = Math.sqrt((distX * distX) + (distY * distY));
-                    if (distance <= orb.radius + this.radius)
-                        this.life -= orb.power;
-                })
-            }
+            // orbCollision() {
+            //     player.orbs.forEach(orb => {
+            //         const distX = orb.x - this.x;
+            //         const distY = orb.y - this.y;
+            //         const distance = Math.sqrt((distX * distX) + (distY * distY));
+            //         if (distance <= orb.radius + this.radius)
+            //             this.life -= orb.power;
+            //     })
+            // }
 
-            die() {
-                const myIndex = enimies.findIndex(x => x.id === this.id);
-                // const myIndex = enimies.findIndex(x => x === this);
-                enimies.splice(myIndex, 1)
-            }
+            // die() {
+            //     const myIndex = enimies.findIndex(x => x.id === this.id);
+            //     // const myIndex = enimies.findIndex(x => x === this);
+            //     enimies.splice(myIndex, 1)
+            // }
         }
 
         class Orb {
@@ -130,7 +130,7 @@
                 this.y = player.y + Math.sin(angle) * player.arc;
                 this.angle += 3
 
-                // this.enemyCollision();
+                this.enemyCollision();
 
                 this.draw();
             }
